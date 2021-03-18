@@ -29,11 +29,11 @@ public class AviatorBotDrive extends LinearOpMode {
     private DcMotor rightFrontDrive = null;
     private DcMotor leftBackDrive = null;
     private DcMotor rightBackDrive = null;
-    private Servo wobblerServo = null;
+   /* private Servo wobblerServo = null;
     private DcMotor armMotor = null;
     private DcMotorEx launchMotor = null;
     private DcMotor intakeMotor = null;
-    private Servo launchServo = null;
+    private Servo launchServo = null;*/
     //GoldAlignDetector goldDetector;
     //SamplingOrderDetector detector;
 
@@ -52,11 +52,11 @@ public class AviatorBotDrive extends LinearOpMode {
         rightFrontDrive = hardwareMap.get(DcMotor.class, "rightFrontMotor"); // motor 3
         leftBackDrive = hardwareMap.get(DcMotor.class, "leftBackMotor"); // motor 0
         rightBackDrive = hardwareMap.get(DcMotor.class, "rightBackMotor"); // motor 1
-        armMotor = hardwareMap.get(DcMotor.class, "armMotor");
+        /*armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         launchMotor = hardwareMap.get(DcMotorEx.class, "launchMotor");
         wobblerServo = hardwareMap.get(Servo.class, "wobblerServo");
         launchServo = hardwareMap.get(Servo.class, "launchServo");
-        intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
+        intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");*/
 
         // Wait for game to start (driver presses PLAY
         waitForStart();
@@ -67,11 +67,11 @@ public class AviatorBotDrive extends LinearOpMode {
         {
             //testWheelServo();
             driveWithTwoJoysticks();
-            driveArm();
+            /*driveArm();
             driveLauncher();
             pushRings();
             grabWobbler();
-            intakeMotor();
+            intakeMotor();*/
         }
     }
 
@@ -104,7 +104,7 @@ public class AviatorBotDrive extends LinearOpMode {
         robot.rightFrontDrive.setPower(p[1] * speedRF);
         robot.rightBackDrive.setPower(speedRB);
     }
-
+/*
     public void driveArm() {
         if (gamepad2.dpad_down) {
             robot.armMotor.setPower(-0.5);
@@ -115,6 +115,36 @@ public class AviatorBotDrive extends LinearOpMode {
         if (gamepad2.dpad_up) {
             robot.armMotor.setPower(0.5);
         }
+
+    }
+    public void shooting() {
+        encoderTurn(0.2, -1, 40, 40);
+        sleep(50);
+        robot.launchMotor.setVelocity(-2200);
+        robot.intakeMotor.setPower(1);
+        sleep(1000);
+        robot.launchServo.setPosition(0.45);
+        sleep(250);
+        robot.launchServo.setPosition(-0.5);
+        sleep(200);
+        robot.launchServo.setPosition(0.45);
+        sleep(200);
+        encoderTurn(0.4, -1, 70, 70);
+        sleep(500);
+        robot.launchServo.setPosition(-0.5);
+        sleep(200);
+        robot.launchServo.setPosition(0.45);
+        sleep(200);
+        robot.launchMotor.setVelocity(-2270);
+        encoderTurn(0.4, -1, 85, 85);
+        sleep(800);
+        robot.launchServo.setPosition(-0.5);
+        sleep(200);
+        robot.launchServo.setPosition(0.45);
+        sleep(200);
+
+        robot.launchMotor.setVelocity(0);
+        robot.intakeMotor.setPower(0);
     }
     public void driveLauncher() {
         if (gamepad2.a){
@@ -128,41 +158,11 @@ public class AviatorBotDrive extends LinearOpMode {
             robot.launchMotor.setVelocity(-10000);
 
         }
-        if (gamepad1.dpad_up) {
-            encoderTurn(0.2, -1, 40, 40);
-            sleep(50);
-            robot.launchMotor.setVelocity(-2200);
-            robot.intakeMotor.setPower(-0.9);
-            sleep(1000);
-            robot.launchServo.setPosition(0.45);
-            sleep(250);
-            robot.launchServo.setPosition(-0.5);
-            sleep(200);
-            robot.launchServo.setPosition(0.45);
-            sleep(200);
-            encoderTurn(0.4, -1, 65, 65);
-            sleep(500);
-            robot.launchServo.setPosition(-0.5);
-            sleep(200);
-            robot.launchServo.setPosition(0.45);
-            sleep(200);
-            encoderTurn(0.4, -1, 85, 85);
-            sleep(800);
-            robot.launchServo.setPosition(-0.5);
-            sleep(200);
-            robot.launchServo.setPosition(0.45);
-            sleep(200);
-
-            robot.launchMotor.setVelocity(0);
-           robot.intakeMotor.setPower(0);
-        }
+        //if (gamepad1.dpad_up) {
+            //shooting();
+       // }
         if (gamepad1.dpad_left) {
-            robot.launchMotor.setVelocity(-2250);
-            sleep(1000);
-            robot.launchServo.setPosition(0.45);
-            sleep(250);
-            robot.launchServo.setPosition(-0.5);
-            sleep(50);
+            robot.launchMotor.setVelocity(-2200);
         }
     }
     public void pushRings() throws InterruptedException {
@@ -173,13 +173,11 @@ public class AviatorBotDrive extends LinearOpMode {
             sleep(30);
         }
         if (gamepad2.right_bumper){
-            int x = 0;
-            for(x = 0; x < 3; x++){
-                robot.launchServo.setPosition(-0.5);
-                sleep(200);
-                robot.launchServo.setPosition(0.45);
-                sleep(200);
-            }
+            robot.launchServo.setPosition(-0.5);
+            sleep(200);
+            robot.launchServo.setPosition(0.45);
+            sleep(30);
+
 
         }
 
@@ -202,10 +200,14 @@ public class AviatorBotDrive extends LinearOpMode {
         }
         if (gamepad1.x) {
             robot.intakeMotor.setPower(-0.9);
+
         }
-
-
+        if (gamepad1.y) {
+            robot.intakeMotor.setPower(0.3);
+        }
     }
+    */
+
     private void encoderTurn(double speed, int direction, int leftTicks, int rightTicks) {
         stopAndResetEncoder();
         runUsingEncoder();
@@ -305,4 +307,5 @@ public class AviatorBotDrive extends LinearOpMode {
 //            robot.rightServo.setPosition(1);
 //        }
 }
+
 
