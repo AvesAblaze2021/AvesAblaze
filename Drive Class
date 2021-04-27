@@ -118,33 +118,7 @@ public class AviatorBotDrive extends LinearOpMode {
 
     }
     public void shooting() {
-        encoderTurn(0.2, -1, 40, 40);
-        sleep(50);
-        robot.launchMotor.setVelocity(-2200);
-        robot.intakeMotor.setPower(1);
-        sleep(1000);
-        robot.launchServo.setPosition(0.45);
-        sleep(250);
-        robot.launchServo.setPosition(-0.5);
-        sleep(200);
-        robot.launchServo.setPosition(0.45);
-        sleep(200);
-        encoderTurn(0.4, -1, 70, 70);
-        sleep(500);
-        robot.launchServo.setPosition(-0.5);
-        sleep(200);
-        robot.launchServo.setPosition(0.45);
-        sleep(200);
-        robot.launchMotor.setVelocity(-2270);
-        encoderTurn(0.4, -1, 85, 85);
-        sleep(800);
-        robot.launchServo.setPosition(-0.5);
-        sleep(200);
-        robot.launchServo.setPosition(0.45);
-        sleep(200);
-
-        robot.launchMotor.setVelocity(0);
-        robot.intakeMotor.setPower(0);
+        
     }
     public void driveLauncher() {
         if (gamepad2.a){
@@ -162,10 +136,32 @@ public class AviatorBotDrive extends LinearOpMode {
             //shooting();
        // }
         if (gamepad1.dpad_left) {
-            robot.launchMotor.setVelocity(-2200);
-        }
+encoderTurn(0.2, -1, 40, 40);
+        encoderStrafe(0.2, -1, 100):
+        robot.launchMotor.setVelocity(-2200);
+        encoderStrafe(0.2, -1, 100):
+      
+        robot.launchServo.setPosition(0.45);
+        sleep(250);
+        robot.launchServo.setPosition(-0.5);
+        sleep(200);
+        robot.launchServo.setPosition(0.45);
+        sleep(200);
+        robot.launchServo.setposition(-0.5)
+        encoderStrafe(0.2, -1, 100):        
+        sleep(500);
+        robot.launchServo.setPosition(-0.5);
+        sleep(200);
+        robot.launchServo.setPosition(0.45);
+        sleep(200);
+        encoderStrafe(0.2, -1, 100):
+        
+        robot.launchServo.setPosition(-0.5);
+        sleep(200);
+        robot.launchServo.setPosition(0.45);
+                }
     }
-    public void pushRings() throws InterruptedException {
+    public void pushRings() {
         if (gamepad2.left_bumper){
             robot.launchServo.setPosition(-0.5);
             sleep(200);
