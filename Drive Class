@@ -1,20 +1,16 @@
-package org.firstinspires.ftc.teamcode;
+    package org.firstinspires.ftc.teamcode;
 
 //import com.disnodeteam.dogecv.CameraViewDisplay;
 //import com.disnodeteam.dogecv.DogeCV;
 //import com.disnodeteam.dogecv.detectors.roverrukus.SamplingOrderDetector;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-
-import org.firstinspires.ftc.teamcode.Robot;
+import com.qualcomm.robotcore.util.Range;
 //import com.disnodeteam.dogecv.detectors.roverrukus.GoldAlignDetector;
 
 
@@ -29,11 +25,12 @@ public class AviatorBotDrive extends LinearOpMode {
     private DcMotor rightFrontDrive = null;
     private DcMotor leftBackDrive = null;
     private DcMotor rightBackDrive = null;
-   /* private Servo wobblerServo = null;
+    private Servo wobblerServo = null;
     private DcMotor armMotor = null;
     private DcMotorEx launchMotor = null;
     private DcMotor intakeMotor = null;
-    private Servo launchServo = null;*/
+    private Servo launchServo = null;
+    private Servo intakeServo = null;
     //GoldAlignDetector goldDetector;
     //SamplingOrderDetector detector;
 
@@ -52,26 +49,34 @@ public class AviatorBotDrive extends LinearOpMode {
         rightFrontDrive = hardwareMap.get(DcMotor.class, "rightFrontMotor"); // motor 3
         leftBackDrive = hardwareMap.get(DcMotor.class, "leftBackMotor"); // motor 0
         rightBackDrive = hardwareMap.get(DcMotor.class, "rightBackMotor"); // motor 1
-        /*armMotor = hardwareMap.get(DcMotor.class, "armMotor");
+        armMotor = hardwareMap.get(DcMotor.class, "armMotor");
         launchMotor = hardwareMap.get(DcMotorEx.class, "launchMotor");
         wobblerServo = hardwareMap.get(Servo.class, "wobblerServo");
         launchServo = hardwareMap.get(Servo.class, "launchServo");
-        intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");*/
+        intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
+        intakeServo = hardwareMap.get(Servo.class, "intakeServo");
 
+
+
+        telemetry.addData("Mode", "waiting");
+        telemetry.update();
         // Wait for game to start (driver presses PLAY
         waitForStart();
-
+        intakeServo.setPosition(0.17);
+        telemetry.addData("Mode", "running");
+        telemetry.update();
         // run until driver presses STOP
         while (opModeIsActive())
         //while (opModeIsActive() && (runtime.seconds() < 31.0))
         {
             //testWheelServo();
             driveWithTwoJoysticks();
-            /*driveArm();
+            driveArm();
             driveLauncher();
             pushRings();
             grabWobbler();
-            intakeMotor();*/
+            intakeMotor();
+            intakeServo();
         }
     }
 
@@ -82,10 +87,27 @@ public class AviatorBotDrive extends LinearOpMode {
         // Run wheels in POV mode (note: The joystick goes negative when pushed forwards, so negate it)
         // In this mode the Left stick moves the robot fwd and back and crabs left and right,
         // the Right stick tank turns left and right
-        double speedLF = -(gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x);
-        double speedLB = -(gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x);
-        double speedRF = -(gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x);
-        double speedRB = -(gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x);
+        //change the first - to change forwards and backwards, the inside values change for strafing and turning
+        //double speedLF = -(gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x);
+        //  double speedLB = -(gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x);
+        //  double speedRF = -(gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x);
+        // double speedRB = -(gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x);
+
+        double coeff = 0.9;
+
+        double speedLF = coeff * -(gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x);
+        double speedLB = coeff * -(gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x);
+        double speedRF = coeff * -(gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x);
+        double speedRB = coeff * -(gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x);
+
+        double coeff2 = -0.3;
+
+        if (gamepad1.left_bumper) {
+            speedLF = coeff2 * (gamepad1.left_stick_y - gamepad1.left_stick_x - gamepad1.right_stick_x);
+            speedLB = coeff2 * (gamepad1.left_stick_y + gamepad1.left_stick_x - gamepad1.right_stick_x);
+            speedRF = coeff2 * (gamepad1.left_stick_y + gamepad1.left_stick_x + gamepad1.right_stick_x);
+            speedRB = coeff2 * (gamepad1.left_stick_y - gamepad1.left_stick_x + gamepad1.right_stick_x);
+        }
 
 
         // Clip values so that they are within -1 & +1
@@ -104,7 +126,7 @@ public class AviatorBotDrive extends LinearOpMode {
         robot.rightFrontDrive.setPower(p[1] * speedRF);
         robot.rightBackDrive.setPower(speedRB);
     }
-/*
+
     public void driveArm() {
         if (gamepad2.dpad_down) {
             robot.armMotor.setPower(-0.5);
@@ -117,14 +139,17 @@ public class AviatorBotDrive extends LinearOpMode {
         }
 
     }
-    public void shooting() {
-        
+
+    public void powershot() {
+
+
     }
+
     public void driveLauncher() {
-        if (gamepad2.a){
+        if (gamepad2.a) {
             robot.launchMotor.setVelocity(-2700);
         }
-        if (gamepad2.b){
+        if (gamepad2.b) {
             robot.launchMotor.setVelocity(0);
 
         }
@@ -133,76 +158,263 @@ public class AviatorBotDrive extends LinearOpMode {
 
         }
         //if (gamepad1.dpad_up) {
-            //shooting();
-       // }
+        //shooting();
+        // }
         if (gamepad1.dpad_left) {
-encoderTurn(0.2, -1, 40, 40);
-        encoderStrafe(0.2, -1, 100):
-        robot.launchMotor.setVelocity(-2200);
-        encoderStrafe(0.2, -1, 100):
-      
-        robot.launchServo.setPosition(0.45);
-        sleep(250);
-        robot.launchServo.setPosition(-0.5);
-        sleep(200);
-        robot.launchServo.setPosition(0.45);
-        sleep(200);
-        robot.launchServo.setposition(-0.5)
-        encoderStrafe(0.2, -1, 100):        
-        sleep(500);
-        robot.launchServo.setPosition(-0.5);
-        sleep(200);
-        robot.launchServo.setPosition(0.45);
-        sleep(200);
-        encoderStrafe(0.2, -1, 100):
-        
-        robot.launchServo.setPosition(-0.5);
-        sleep(200);
-        robot.launchServo.setPosition(0.45);
-                }
-    }
-    public void pushRings() {
-        if (gamepad2.left_bumper){
+            launchMotor.setVelocity(-2000);
+            robot.intakeServo.setPosition(0.7);
+            encoderStrafe(0.1, -1, 150);
+            sleep(100);
             robot.launchServo.setPosition(-0.5);
             sleep(200);
             robot.launchServo.setPosition(0.45);
-            sleep(30);
+            encoderStrafe(0.1, -1, 130);
+            robot.launchServo.setPosition(-0.5);
+            sleep(200);
+            robot.launchServo.setPosition(0.45);
+            encoderStrafe(0.1, -1, 150);
+            robot.launchServo.setPosition(-0.5);
+            sleep(200);
+            robot.launchServo.setPosition(0.45);
+            encoderStrafe(0.1, -1, 150);
+            robot.launchServo.setPosition(-0.5);
+            sleep(200);
+            robot.launchServo.setPosition(0.45);
+            robot.intakeServo.setPosition(0.17);
+            launchMotor.setVelocity(0);
+            /*robot.rotate(50, 0.01);
+            sleep(1000);
+            encoderStrafe(0.2, -1,200);
+            //toAngle(0.03);
+            launchMotor.setVelocity(-2200);
+            sleep(1000);
+            robot.launchServo.setPosition(-0.5);
+            sleep(200);
+            robot.launchServo.setPosition(0.45);
+            rotate(-12, 0.04);
+            robot.launchServo.setPosition(-0.5);
+            sleep(200);
+            robot.launchServo.setPosition(0.45);
+            rotate(-10, 0.04);
+            robot.launchServo.setPosition(-0.5);
+            sleep(200);
+            robot.launchServo.setPosition(0.45);
+            sleep(30);*/
         }
-        if (gamepad2.right_bumper){
+    }
+
+    public void pushRings() throws InterruptedException {
+        if (gamepad2.left_bumper) {
+            robot.launchMotor.setVelocity(-2200);
+        }
+        if (gamepad2.right_bumper) {
             robot.launchServo.setPosition(-0.5);
             sleep(200);
             robot.launchServo.setPosition(0.45);
             sleep(30);
-
 
         }
 
     }
 
     public void grabWobbler() {
-        if (gamepad2.x){
-            robot.wobblerServo.setPosition(0.7);
+        if (gamepad2.x) {
+            robot.wobblerServo.setPosition(0.79);
         }
-        if (gamepad2.y){
-            robot.wobblerServo.setPosition(0.2);
+        if (gamepad2.y) {
+            robot.wobblerServo.setPosition(1);
         }
     }
+
     public void intakeMotor() {
-        if (gamepad1.right_bumper){
-            robot.intakeMotor.setPower(1);
+        if (gamepad1.a) {
+            robot.intakeMotor.setPower(-0.95);
         }
-        if (gamepad1.left_bumper){
+        if (gamepad1.b) {
             robot.intakeMotor.setPower(0);
         }
         if (gamepad1.x) {
-            robot.intakeMotor.setPower(-0.9);
+            robot.intakeMotor.setPower(1);
 
         }
         if (gamepad1.y) {
-            robot.intakeMotor.setPower(0.3);
+            robot.intakeMotor.setPower(-0.3);
         }
     }
-    */
+
+    public void intakeServo() {
+        if (gamepad1.dpad_up) {
+            robot.intakeServo.setPosition(0.7);
+            sleep(1000);
+            robot.intakeServo.setPosition(0.17);
+            sleep(100);
+        }
+
+        if (gamepad1.dpad_down) {
+            robot.intakeServo.setPosition(0.17);
+        }
+    }
+
+    private void encoderForward(double speed, int ticks) {
+        stopAndResetEncoder();
+        runUsingEncoder();
+
+        leftFrontDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftBackDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightFrontDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightBackDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        int newLeftFrontTarget;
+        int newRightFrontTarget;
+        int newLeftBackTarget;
+        int newRightBackTarget;
+
+
+        //new target for the back wheels
+        //newLeftBackTarget = robot.leftBackDrive.getCurrentPosition() + (int)(leftInch * COUNTS_PER_INCH);
+        //newRightBackTarget = robot.rightBackMotor.getCurrentPosition() + (int)(rightInch * COUNTS_PER_INCH);
+
+
+        // Ensure that the opmode is still active
+        if (opModeIsActive()) {
+
+            // Determine new target position, and pass to motor controller
+            //new target for the front wheels
+            //newLeftFrontTarget = (int)(leftTicks * COUNTS_PER_INCH);
+            //newRightFrontTarget = robot.rightFrontMotor.getCurrentPosition() + (int)(rightTicks * COUNTS_PER_INCH);
+            newLeftFrontTarget = ticks;
+            newRightFrontTarget = ticks;
+
+            //new target for the back wheels
+            //newLeftBackTarget = robot.leftBackDrive.getCurrentPosition() + (int)(leftInch * COUNTS_PER_INCH);
+            //newRightBackTarget = robot.rightBackMotor.getCurrentPosition() + (int)(rightInch * COUNTS_PER_INCH);
+            newLeftBackTarget = ticks;
+            newRightBackTarget = ticks;
+
+            //set target position for front wheels
+            leftFrontDrive.setTargetPosition(newLeftFrontTarget);
+            rightFrontDrive.setTargetPosition(newRightFrontTarget);
+
+            //set target position for back wheels
+            leftBackDrive.setTargetPosition(newLeftBackTarget);
+            rightBackDrive.setTargetPosition(newRightBackTarget);
+
+            runToPosition();
+
+            leftFrontDrive.setPower(speed);
+            leftBackDrive.setPower(speed);
+            rightBackDrive.setPower(speed);
+            rightFrontDrive.setPower(speed);
+
+            while (opModeIsActive() &&
+                    //           (runtime.seconds() < timeout) &&
+                    (leftFrontDrive.isBusy() && rightFrontDrive.isBusy() &&
+                            leftBackDrive.isBusy() && rightBackDrive.isBusy()
+                    )
+                    && leftFrontDrive.getCurrentPosition() < ticks) {
+
+                // Display it for the driver.
+                telemetry.addData("LFT, RFT", "Running to %7d :%7d", newLeftFrontTarget, newRightFrontTarget);
+                telemetry.addData("LFP, RFP", "Running at %7d :%7d",
+                        leftFrontDrive.getCurrentPosition(),
+                        rightFrontDrive.getCurrentPosition());
+
+                telemetry.addData("LBT. RBT", "Running to %7d :%7d", newLeftBackTarget, newRightBackTarget);
+                telemetry.addData("LBP, RBP", "Running at %7d :%7d",
+                        leftBackDrive.getCurrentPosition(),
+                        rightBackDrive.getCurrentPosition());
+                telemetry.update();
+            }
+
+            stopDriveBase();
+            runUsingEncoder();
+        }
+
+    }
+
+    private void encoderStrafe(double speed, int direction, int ticks) {
+        stopAndResetEncoder();
+        runUsingEncoder();
+
+        int leftF;
+        int leftB;
+        int rightF;
+        int rightB;
+
+        // Ensure that the opmode is still active
+        if (opModeIsActive()) {
+
+            // Determine new target position, and pass to motor controller
+            //new target for the front wheels
+            //leftF = robot.leftFrontMotor.getCurrentPosition() + (int)(inch * COUNTS_PER_INCH);
+            //rightF = robot.rightFrontMotor.getCurrentPosition() + (int)(inch * COUNTS_PER_INCH);
+            leftF = leftFrontDrive.getCurrentPosition() + ticks;
+            rightF = rightFrontDrive.getCurrentPosition() + ticks;
+
+            //new target for the back wheels
+            //leftB = robot.leftBackDrive.getCurrentPosition() + (int)(inch * COUNTS_PER_INCH);
+            //rightB = robot.rightBackMotor.getCurrentPosition() + (int)(inch * COUNTS_PER_INCH);
+            leftB = leftBackDrive.getCurrentPosition() + ticks;
+            rightB = rightBackDrive.getCurrentPosition() + ticks;
+
+            //if intent is to drive right
+            if (direction == -1) {
+                //set target position for front wheels
+                leftFrontDrive.setTargetPosition(-leftF);
+                rightFrontDrive.setTargetPosition(rightF);
+
+                //set target position for back wheels
+                leftBackDrive.setTargetPosition(leftB);
+                rightBackDrive.setTargetPosition(-rightB);
+            }
+
+            //if intent is to drive left
+            else if (direction == 1) {
+                //set target position for front wheels
+                leftFrontDrive.setTargetPosition(leftF);
+                rightFrontDrive.setTargetPosition(-rightF);
+
+                //set target position for back wheels
+                leftBackDrive.setTargetPosition(-leftB);
+                rightBackDrive.setTargetPosition(rightB);
+            }
+
+            runToPosition();
+
+            if (direction == -1) {
+                leftFrontDrive.setPower(-speed);
+                leftBackDrive.setPower(speed);
+                rightFrontDrive.setPower(speed);
+                rightBackDrive.setPower(-speed);
+            } else if (direction == 1) {
+                leftFrontDrive.setPower(speed);
+                leftBackDrive.setPower(-speed);
+                rightFrontDrive.setPower(-speed);
+                rightBackDrive.setPower(speed);
+            }
+
+            while (opModeIsActive() &&
+                    //(runtime.seconds() < time) &&
+                    (leftFrontDrive.isBusy() && rightFrontDrive.isBusy()
+                            && leftBackDrive.isBusy() && rightBackDrive.isBusy())) {
+
+                // Display it for the driver.
+                telemetry.addData("Path1", "Running to %7d :%7d", leftF, rightF);
+                telemetry.addData("Path2", "Running at %7d :%7d",
+                        leftFrontDrive.getCurrentPosition(),
+                        rightFrontDrive.getCurrentPosition());
+
+                telemetry.addData("Path3", "Running to %7d :%7d", leftB, rightB);
+                telemetry.addData("Path4", "Running at %7d :%7d",
+                        leftBackDrive.getCurrentPosition(),
+                        rightBackDrive.getCurrentPosition());
+                telemetry.update();
+            }
+
+            stopDriveBase();
+        }
+
+    }
 
     private void encoderTurn(double speed, int direction, int leftTicks, int rightTicks) {
         stopAndResetEncoder();
@@ -213,6 +425,12 @@ encoderTurn(0.2, -1, 40, 40);
             int leftB = leftBackDrive.getCurrentPosition() + leftTicks;
             int rightF = rightFrontDrive.getCurrentPosition() + rightTicks;
             int rightB = rightBackDrive.getCurrentPosition() + rightTicks;
+
+            // Determine new target position, and pass to motor controller
+            //new target for the front wheels
+            //newLeftFrontTarget = (int)(leftTicks * COUNTS_PER_INCH);
+            //newRightFrontTarget = robot.rightFrontMotor.getCurrentPosition() + (int)(rightTicks * COUNTS_PER_INCH);
+
 
             //if intent is left turn
             if (direction == -1) {
@@ -227,6 +445,7 @@ encoderTurn(0.2, -1, 40, 40);
                 leftBackDrive.setTargetPosition(-leftB);
                 rightFrontDrive.setTargetPosition(rightF);
                 rightBackDrive.setTargetPosition(rightB);
+
             }
 
             runToPosition();
@@ -236,7 +455,8 @@ encoderTurn(0.2, -1, 40, 40);
                 leftBackDrive.setPower(speed);
                 rightFrontDrive.setPower(speed);
                 rightBackDrive.setPower(speed);
-            } if (direction == 1) {
+            }
+            if (direction == 1) {
                 leftFrontDrive.setPower(speed);
                 leftBackDrive.setPower(speed);
                 rightFrontDrive.setPower(speed);
@@ -249,8 +469,8 @@ encoderTurn(0.2, -1, 40, 40);
                             leftBackDrive.isBusy() && rightBackDrive.isBusy()
                     )
                     && leftFrontDrive.getCurrentPosition() < leftTicks) {
-
-                // Display it for the driver.
+            }
+            // Display it for the driver.
 //                telemetry.addData("LFT, RFT", "Running to %7d :%7d", leftF, rightF);
 //                telemetry.addData("LFP, RFP", "Running at %7d :%7d",
 //                        robot.leftFrontDrive.getCurrentPosition(),
@@ -260,12 +480,14 @@ encoderTurn(0.2, -1, 40, 40);
 //                telemetry.addData("LBP, RBP", "Running at %7d :%7d",
 //                        robot.leftBackDrive.getCurrentPosition(),
 //                        robot.rightBackDrive.getCurrentPosition());
-                // telemetry.update();
-            }
-
-            stopDriveBase();
+            // telemetry.update();
         }
+
+        stopDriveBase();
     }
+
+
+
     private void runToPosition () {
         leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -291,6 +513,9 @@ encoderTurn(0.2, -1, 40, 40);
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
+
+
+
 //    public void testWheelServo () {
 //        if (gamepad1.a)
 //        {
@@ -303,5 +528,3 @@ encoderTurn(0.2, -1, 40, 40);
 //            robot.rightServo.setPosition(1);
 //        }
 }
-
-
